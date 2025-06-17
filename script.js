@@ -394,6 +394,72 @@ socket.onclose = function (event) {
     }
 };
 
+// Collect incoming data for CSV
+socket.onmessage = function (event) {
+    const data = JSON.parse(event.data);
+    console.log("data: ", data);
+
+    // ... Your existing DOM update code ...
+
+    if (data.lat !== undefined && data.long !== undefined && data.nSv !== undefined) {
+        heatmapdata(data.lat, data.long, data.nSv);
+    }
+
+    // Append new row to CSV data
+    const now = new Date();
+    const row = [
+        data.cpm || '',
+        data.nSv || '',
+        data.h2sppm || '',
+        data.coppm || '',
+        now.getDate(),
+        now.getMonth() + 1,
+        now.getFullYear(),
+        now.getHours(),
+        now.getMinutes(),
+        data.lat || '',
+        data.long || '',
+        data.alt || '',
+        data.humidity || '',
+        data.temperature || ''
+    ].join(',') + '\n';
+
+    csvData += row;
+    usersLocationUpdated({ coords: { latitude: data.lat, longitude: data.long } });
+};
+
+// Function to download CSV file
+function downloadCSV() {
+    if (csvData !== csvHeader) { // Check if any data was collected
+        const blob = new Blob([csvData], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+
+        URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+    }
+}
+
+// Handle browser lifecycle events
+window.addEventListener('beforeunload', function (e) {
+    downloadCSV();
+});
+
+// Also download CSV if WebSocket closes unexpectedly
+socket.onclose = function (event) {
+    downloadCSV(); // Trigger download on close
+    if (event.wasClean) {
+        console.log(`Connection closed cleanly, code=${event.code}, reason=${event.reason}`);
+    } else {
+        console.error('Connection died');
+    }
+};
+
 // socket.onclose = function (event) {
 //     // --- CSV File Logic START ---
 //     const blob = new Blob([csvData], { type: 'text/csv' });
