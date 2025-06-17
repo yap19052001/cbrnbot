@@ -225,9 +225,9 @@ function drawMap() {
       }, { position: "topleft" })
       .addTo(map);
 
-    map.fitBounds(path.getBounds(), { maxZoom: 7 });
+    map.fitBounds(path.getBounds(), { maxZoom: 18 });
   } else {
-    map.setView([20.59, 78.96], 5);
+    map.setView([20.59, 78.96], 8);
   }
 }
 
