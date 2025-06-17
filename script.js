@@ -2,34 +2,34 @@ const div = document.getElementById('inner-circle');
 
 // Function to toggle fullscreen
 function toggleFullscreen() {
-  if (
-    document.fullscreenElement || 
-    document.webkitFullscreenElement || 
-    document.mozFullScreenElement || 
-    document.msFullscreenElement
-  ) {
-    // Exit fullscreen
-    if (document.exitFullscreen) {
-      document.exitFullscreen();
-    } else if (document.webkitExitFullscreen) {
-      document.webkitExitFullscreen();
-    } else if (document.mozCancelFullScreen) {
-      document.mozCancelFullScreen();
-    } else if (document.msExitFullscreen) {
-      document.msExitFullscreen();
+    if (
+        document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        document.mozFullScreenElement ||
+        document.msFullscreenElement
+    ) {
+        // Exit fullscreen
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        }
+    } else {
+        // Enter fullscreen
+        if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen();
+        } else if (document.documentElement.webkitRequestFullscreen) {
+            document.documentElement.webkitRequestFullscreen();
+        } else if (document.documentElement.mozRequestFullScreen) {
+            document.documentElement.mozRequestFullScreen();
+        } else if (document.documentElement.msRequestFullscreen) {
+            document.documentElement.msRequestFullscreen();
+        }
     }
-  } else {
-    // Enter fullscreen
-    if (document.documentElement.requestFullscreen) {
-      document.documentElement.requestFullscreen();
-    } else if (document.documentElement.webkitRequestFullscreen) {
-      document.documentElement.webkitRequestFullscreen();
-    } else if (document.documentElement.mozRequestFullScreen) {
-      document.documentElement.mozRequestFullScreen();
-    } else if (document.documentElement.msRequestFullscreen) {
-      document.documentElement.msRequestFullscreen();
-    }
-  }
 }
 
 // Handle double-click (desktop)
@@ -38,22 +38,22 @@ div.addEventListener('dblclick', toggleFullscreen);
 // Handle double-tap (touchscreen)
 let lastTap = 0;
 div.addEventListener('touchend', function (e) {
-  const currentTime = new Date().getTime();
-  const tapLength = currentTime - lastTap;
+    const currentTime = new Date().getTime();
+    const tapLength = currentTime - lastTap;
 
-  if (tapLength > 0 && tapLength < 300) {
-    toggleFullscreen();
-    e.preventDefault(); // prevent ghost clicks
-  }
+    if (tapLength > 0 && tapLength < 300) {
+        toggleFullscreen();
+        e.preventDefault(); // prevent ghost clicks
+    }
 
-  lastTap = currentTime;
+    lastTap = currentTime;
 });
 
 // Optional: handle Enter or Space for accessibility
 div.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' || e.key === ' ') {
-    toggleFullscreen();
-  }
+    if (e.key === 'Enter' || e.key === ' ') {
+        toggleFullscreen();
+    }
 });
 
 
@@ -168,7 +168,7 @@ function stopDrag() {
 
 function updateDirectionText(angle) {
     // const threshold = 0.22; // Adjust the threshold as needed
-    
+
     if (angle == 0) {
         directionValue.textContent = 'STOP';
         data.direction = "stop";
@@ -269,10 +269,80 @@ document.getElementById('front-direction').addEventListener('click', function ()
 var latitudeForHeatMap;
 var longitudeForHeatMap;
 var sensorData = [];
+
+// socket.onmessage = function (event) {
+//     const data = JSON.parse(event.data);
+//     console.log("data: ", data);
+
+//     if (data.temperature !== undefined) {
+//         document.getElementById('temperature-value').textContent = data.temperature + ' °C';
+//     }
+//     if (data.humidity !== undefined) {
+//         document.getElementById('humidity-value').textContent = data.humidity + '%';
+//     }
+//     if (data.nSv !== undefined) {
+//         document.getElementById('radiantion-value').textContent = data.nSv + 'bq';
+//     }
+//     if (data.coppm !== undefined) {
+//         document.getElementById('CO-value').textContent = data.coppm + 'ppm';
+//     }
+//     if (data.h2sppm !== undefined) {
+//         document.getElementById('h2s-value').textContent = data.h2sppm + 'ppm';
+//     }
+//     if (data.humidity !== undefined) {
+//         document.getElementById('altitude-value').textContent = data.alt + 'm';
+//     }
+//     if (data.lat !== undefined) {
+//         document.getElementById('latitude-value').textContent = data.lat + '°';
+//     }
+//     if (data.long !== undefined) {
+//         document.getElementById('longitude-value').textContent = data.long + '°';
+//     }
+//     if (data.lat !== undefined && data.long !== undefined && data.nSv !== undefined) {
+//         // Update the HTML elements with latitude, longitude, and radiation data
+//         document.getElementById('latitude-value').textContent = data.lat + '°';
+//         document.getElementById('longitude-value').textContent = data.long + '°';
+
+//         // Call the function to update the heatmap data
+//         heatmapdata(data.lat, data.long, data.nSv);
+//     }
+//     usersLocationUpdated({ coords: { latitude: data.lat, longitude: data.long } });
+// };
+// --- CSV File Creation Logic ---
+let csvData = '';
+let csvHeader = 'cpm,nSv,h2sppm,coppm,day,month,year,hour,minute,lat,long,alt,humidity,temperature\n';
+let csvCreationTime = new Date();
+let filenameTimestamp = csvCreationTime.toISOString().replace(/[:.]/g, '-');
+let fileName = `CBRN_DATA_${filenameTimestamp}.csv`;
+csvData += csvHeader;
+
+function formatCSVRow(data) {
+    const now = new Date();
+    const row = [
+        data.cpm ?? '',
+        data.nSv ?? '',
+        data.h2sppm ?? '',
+        data.coppm ?? '',
+        now.getDate(),
+        now.getMonth() + 1,
+        now.getFullYear(),
+        now.getHours(),
+        now.getMinutes(),
+        data.lat ?? '',
+        data.long ?? '',
+        data.alt ?? '',
+        data.humidity ?? '',
+        data.temperature ?? ''
+    ];
+    return row.join(',') + '\n';
+}
+
+
 socket.onmessage = function (event) {
     const data = JSON.parse(event.data);
     console.log("data: ", data);
 
+    // Update UI values
     if (data.temperature !== undefined) {
         document.getElementById('temperature-value').textContent = data.temperature + ' °C';
     }
@@ -298,14 +368,17 @@ socket.onmessage = function (event) {
         document.getElementById('longitude-value').textContent = data.long + '°';
     }
     if (data.lat !== undefined && data.long !== undefined && data.nSv !== undefined) {
-        // Update the HTML elements with latitude, longitude, and radiation data
         document.getElementById('latitude-value').textContent = data.lat + '°';
         document.getElementById('longitude-value').textContent = data.long + '°';
-
-        // Call the function to update the heatmap data
         heatmapdata(data.lat, data.long, data.nSv);
     }
+
     usersLocationUpdated({ coords: { latitude: data.lat, longitude: data.long } });
+
+    // --- CSV File Logic START ---
+    const csvRow = formatCSVRow(data);
+    csvData += csvRow;
+    // --- CSV File Logic END ---
 };
 
 // console.log("lat for hm " + latitudeForHeatMap)
@@ -313,13 +386,33 @@ socket.onerror = function (error) {
     console.error('WebSocket Error: ', error);
 };
 
+// socket.onclose = function (event) {
+//     if (event.wasClean) {
+//         console.log(`Connection closed cleanly, code=${event.code}, reason=${event.reason}`);
+//     } else {
+//         console.error('Connection died');
+//     }
+// };
+
 socket.onclose = function (event) {
+    // --- CSV File Logic START ---
+    const blob = new Blob([csvData], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    a.click();
+    URL.revokeObjectURL(url);
+    // --- CSV File Logic END ---
+
     if (event.wasClean) {
         console.log(`Connection closed cleanly, code=${event.code}, reason=${event.reason}`);
     } else {
         console.error('Connection died');
     }
 };
+
 
 // function initializeMaps() {
 //     GetMap();
