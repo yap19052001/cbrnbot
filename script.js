@@ -270,6 +270,15 @@ var latitudeForHeatMap;
 var longitudeForHeatMap;
 var sensorData = [];
 
+let csvHeader = 'cpm,nSv,h2sppm,coppm,day,month,year,hour,minute,lat,long,alt,humidity,temperature\n';
+let csvData = csvHeader;
+
+// Create a filename once when the session starts
+let csvCreationTime = new Date();
+let filenameTimestamp = csvCreationTime.toISOString().replace(/[:.]/g, '-');
+let fileName = `CBRN_DATA_${filenameTimestamp}.csv`;
+
+
 socket.onmessage = function (event) {
     const data = JSON.parse(event.data);
     console.log("data: ", data);
