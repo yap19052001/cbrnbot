@@ -270,79 +270,10 @@ var latitudeForHeatMap;
 var longitudeForHeatMap;
 var sensorData = [];
 
-// socket.onmessage = function (event) {
-//     const data = JSON.parse(event.data);
-//     console.log("data: ", data);
-
-//     if (data.temperature !== undefined) {
-//         document.getElementById('temperature-value').textContent = data.temperature + ' °C';
-//     }
-//     if (data.humidity !== undefined) {
-//         document.getElementById('humidity-value').textContent = data.humidity + '%';
-//     }
-//     if (data.nSv !== undefined) {
-//         document.getElementById('radiantion-value').textContent = data.nSv + 'bq';
-//     }
-//     if (data.coppm !== undefined) {
-//         document.getElementById('CO-value').textContent = data.coppm + 'ppm';
-//     }
-//     if (data.h2sppm !== undefined) {
-//         document.getElementById('h2s-value').textContent = data.h2sppm + 'ppm';
-//     }
-//     if (data.humidity !== undefined) {
-//         document.getElementById('altitude-value').textContent = data.alt + 'm';
-//     }
-//     if (data.lat !== undefined) {
-//         document.getElementById('latitude-value').textContent = data.lat + '°';
-//     }
-//     if (data.long !== undefined) {
-//         document.getElementById('longitude-value').textContent = data.long + '°';
-//     }
-//     if (data.lat !== undefined && data.long !== undefined && data.nSv !== undefined) {
-//         // Update the HTML elements with latitude, longitude, and radiation data
-//         document.getElementById('latitude-value').textContent = data.lat + '°';
-//         document.getElementById('longitude-value').textContent = data.long + '°';
-
-//         // Call the function to update the heatmap data
-//         heatmapdata(data.lat, data.long, data.nSv);
-//     }
-//     usersLocationUpdated({ coords: { latitude: data.lat, longitude: data.long } });
-// };
-// --- CSV File Creation Logic ---
-let csvData = '';
-let csvHeader = 'cpm,nSv,h2sppm,coppm,day,month,year,hour,minute,lat,long,alt,humidity,temperature\n';
-let csvCreationTime = new Date();
-let filenameTimestamp = csvCreationTime.toISOString().replace(/[:.]/g, '-');
-let fileName = `CBRN_DATA_${filenameTimestamp}.csv`;
-csvData += csvHeader;
-
-function formatCSVRow(data) {
-    const now = new Date();
-    const row = [
-        data.cpm ?? '',
-        data.nSv ?? '',
-        data.h2sppm ?? '',
-        data.coppm ?? '',
-        now.getDate(),
-        now.getMonth() + 1,
-        now.getFullYear(),
-        now.getHours(),
-        now.getMinutes(),
-        data.lat ?? '',
-        data.long ?? '',
-        data.alt ?? '',
-        data.humidity ?? '',
-        data.temperature ?? ''
-    ];
-    return row.join(',') + '\n';
-}
-
-
 socket.onmessage = function (event) {
     const data = JSON.parse(event.data);
     console.log("data: ", data);
 
-    // Update UI values
     if (data.temperature !== undefined) {
         document.getElementById('temperature-value').textContent = data.temperature + ' °C';
     }
@@ -368,50 +299,119 @@ socket.onmessage = function (event) {
         document.getElementById('longitude-value').textContent = data.long + '°';
     }
     if (data.lat !== undefined && data.long !== undefined && data.nSv !== undefined) {
+        // Update the HTML elements with latitude, longitude, and radiation data
         document.getElementById('latitude-value').textContent = data.lat + '°';
         document.getElementById('longitude-value').textContent = data.long + '°';
+
+        // Call the function to update the heatmap data
         heatmapdata(data.lat, data.long, data.nSv);
     }
-
     usersLocationUpdated({ coords: { latitude: data.lat, longitude: data.long } });
-
-    // --- CSV File Logic START ---
-    const csvRow = formatCSVRow(data);
-    csvData += csvRow;
-    // --- CSV File Logic END ---
 };
+// --- CSV File Creation Logic ---
+let csvData = '';
+let csvHeader = 'cpm,nSv,h2sppm,coppm,day,month,year,hour,minute,lat,long,alt,humidity,temperature\n';
+let csvCreationTime = new Date();
+let filenameTimestamp = csvCreationTime.toISOString().replace(/[:.]/g, '-');
+let fileName = `CBRN_DATA_${filenameTimestamp}.csv`;
+csvData += csvHeader;
+
+// function formatCSVRow(data) {
+//     const now = new Date();
+//     const row = [
+//         data.cpm ?? '',
+//         data.nSv ?? '',
+//         data.h2sppm ?? '',
+//         data.coppm ?? '',
+//         now.getDate(),
+//         now.getMonth() + 1,
+//         now.getFullYear(),
+//         now.getHours(),
+//         now.getMinutes(),
+//         data.lat ?? '',
+//         data.long ?? '',
+//         data.alt ?? '',
+//         data.humidity ?? '',
+//         data.temperature ?? ''
+//     ];
+//     return row.join(',') + '\n';
+// }
+
+
+// socket.onmessage = function (event) {
+//     const data = JSON.parse(event.data);
+//     console.log("data: ", data);
+
+//     // Update UI values
+//     if (data.temperature !== undefined) {
+//         document.getElementById('temperature-value').textContent = data.temperature + ' °C';
+//     }
+//     if (data.humidity !== undefined) {
+//         document.getElementById('humidity-value').textContent = data.humidity + '%';
+//     }
+//     if (data.nSv !== undefined) {
+//         document.getElementById('radiantion-value').textContent = data.nSv + 'bq';
+//     }
+//     if (data.coppm !== undefined) {
+//         document.getElementById('CO-value').textContent = data.coppm + 'ppm';
+//     }
+//     if (data.h2sppm !== undefined) {
+//         document.getElementById('h2s-value').textContent = data.h2sppm + 'ppm';
+//     }
+//     if (data.humidity !== undefined) {
+//         document.getElementById('altitude-value').textContent = data.alt + 'm';
+//     }
+//     if (data.lat !== undefined) {
+//         document.getElementById('latitude-value').textContent = data.lat + '°';
+//     }
+//     if (data.long !== undefined) {
+//         document.getElementById('longitude-value').textContent = data.long + '°';
+//     }
+//     if (data.lat !== undefined && data.long !== undefined && data.nSv !== undefined) {
+//         document.getElementById('latitude-value').textContent = data.lat + '°';
+//         document.getElementById('longitude-value').textContent = data.long + '°';
+//         heatmapdata(data.lat, data.long, data.nSv);
+//     }
+
+//     usersLocationUpdated({ coords: { latitude: data.lat, longitude: data.long } });
+
+//     // --- CSV File Logic START ---
+//     const csvRow = formatCSVRow(data);
+//     csvData += csvRow;
+//     // --- CSV File Logic END ---
+// };
 
 // console.log("lat for hm " + latitudeForHeatMap)
 socket.onerror = function (error) {
     console.error('WebSocket Error: ', error);
 };
 
-// socket.onclose = function (event) {
-//     if (event.wasClean) {
-//         console.log(`Connection closed cleanly, code=${event.code}, reason=${event.reason}`);
-//     } else {
-//         console.error('Connection died');
-//     }
-// };
-
 socket.onclose = function (event) {
-    // --- CSV File Logic START ---
-    const blob = new Blob([csvData], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName;
-    a.click();
-    URL.revokeObjectURL(url);
-    // --- CSV File Logic END ---
-
     if (event.wasClean) {
         console.log(`Connection closed cleanly, code=${event.code}, reason=${event.reason}`);
     } else {
         console.error('Connection died');
     }
 };
+
+// socket.onclose = function (event) {
+//     // --- CSV File Logic START ---
+//     const blob = new Blob([csvData], { type: 'text/csv' });
+//     const url = URL.createObjectURL(blob);
+    
+//     const a = document.createElement('a');
+//     a.href = url;
+//     a.download = fileName;
+//     a.click();
+//     URL.revokeObjectURL(url);
+//     // --- CSV File Logic END ---
+
+//     if (event.wasClean) {
+//         console.log(`Connection closed cleanly, code=${event.code}, reason=${event.reason}`);
+//     } else {
+//         console.error('Connection died');
+//     }
+// };
 
 
 // function initializeMaps() {
