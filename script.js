@@ -1,3 +1,4 @@
+// Change IP address at Line number 214
 const div = document.getElementById('inner-circle');
 
 // Function to toggle fullscreen
@@ -210,7 +211,7 @@ function updateDirectionText(angle) {
 
     }
 }
-const socket = new WebSocket('wss:192.168.51.241:1880/control');
+const socket = new WebSocket('wss:10.249.101.12:1880/control');
 // DATA FORMAT TO SEND TO NODE FOR CONTROLLING WHEEL
 const data = {
     speedValue: 0,
